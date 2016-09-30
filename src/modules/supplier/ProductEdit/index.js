@@ -1,19 +1,29 @@
 import React, { Component } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { Row, Col, Select, Tag, Button, DatePicker, Input, Table, Tabs, Modal, Steps } from 'antd';
-import { fetchProduct, crawlProduct, saveProduct, updateProduct } from 'redux/modules/supplyChain/product';
+import { Row, Col, Select, Tag, Button, DatePicker, Input, Spin, Table, Tabs, Modal, message } from 'antd';
+import { isEmpty } from 'lodash';
+import { fetchProduct, crawlProduct, saveProduct, updateProduct, resetProduct } from 'redux/modules/supplyChain/product';
+import { resetSku } from 'redux/modules/supplyChain/sku';
 import { fetchSupplier } from 'redux/modules/supplyChain/supplier';
 import { fetchCategories } from 'redux/modules/supplyChain/categories';
+import { resetMaterial } from 'redux/modules/supplyChain/material';
+import { fetchUptoken } from 'redux/modules/supplyChain/uptoken';
 import { BasicForm } from './BasicForm';
+import { MaterialForm } from './MaterialForm';
+import { PicturesForm } from './PicturesForm';
 
 const actionCreators = {
-  fetchProduct: fetchProduct,
-  crawlProduct: crawlProduct,
-  saveProduct: saveProduct,
-  updateProduct: updateProduct,
-  fetchSupplier: fetchSupplier,
-  fetchCategories: fetchCategories,
+  fetchUptoken,
+  fetchProduct,
+  crawlProduct,
+  saveProduct,
+  updateProduct,
+  fetchSupplier,
+  fetchCategories,
+  resetSku,
+  resetMaterial,
+  resetProduct,
 };
 
 @connect(
@@ -21,6 +31,8 @@ const actionCreators = {
     product: state.product,
     supplier: state.supplier,
     categories: state.categories,
+    uptoken: state.uptoken,
+    material: state.material,
   }),
   dispatch => bindActionCreators(actionCreators, dispatch),
 )
@@ -32,13 +44,19 @@ export class ProductEdit extends Component {
     product: React.PropTypes.object,
     supplier: React.PropTypes.object,
     categories: React.PropTypes.object,
+    material: React.PropTypes.object,
+    uptoken: React.PropTypes.object,
     filters: React.PropTypes.object,
     fetchCategories: React.PropTypes.func,
     fetchSupplier: React.PropTypes.func,
     fetchProduct: React.PropTypes.func,
     crawlProduct: React.PropTypes.func,
+    fetchUptoken: React.PropTypes.func,
     saveProduct: React.PropTypes.func,
     updateProduct: React.PropTypes.func,
+    resetProduct: React.PropTypes.func,
+    resetSku: React.PropTypes.func,
+    resetMaterial: React.PropTypes.func,
   };
 
   static contextTypes = {
@@ -60,9 +78,31 @@ export class ProductEdit extends Component {
   }
 
   componentWillMount() {
-    const { supplierId } = this.props.location.query;
+    const { supplierId, productId } = this.props.location.query;
+    if (productId) {
+      this.setState({ crawlProductModalVisible: false });
+      this.props.fetchProduct(productId);
+    }
+    this.props.fetchUptoken();
     this.props.fetchSupplier(supplierId);
     this.props.fetchCategories();
+  }
+
+  componentWillReceiveProps(nextProps) {
+    const { product, material } = nextProps;
+    if (product.updated || material.updated) {
+      this.context.router.goBack();
+      message.error('保存成功！');
+    }
+    if (product.failure || material.failure) {
+      message.error('服务器出错，保存失败！');
+    }
+  }
+
+  componentWillUnmount() {
+    this.props.resetProduct();
+    this.props.resetSku();
+    this.props.resetMaterial();
   }
 
   onCrawlProductClick = (e) => {
@@ -80,7 +120,8 @@ export class ProductEdit extends Component {
   }
 
   render() {
-    const { prefixCls, product, supplier, categories } = this.props;
+    const { prefixCls, product, supplier, categories, location, uptoken, material } = this.props;
+    const { productId } = this.props.location.query;
     const crawlProductModalProps = {
       title: '抓取商品',
       okText: '抓取商品',
@@ -94,13 +135,13 @@ export class ProductEdit extends Component {
       <div className={`${prefixCls}`}>
         <Tabs defaultActiveKey="basic" onChange={this.onTabChange}>
           <Tabs.TabPane tab="基本信息" key="basic">
-            <BasicForm product={product} supplier={supplier} categories={categories} />
+            <BasicForm product={product} supplier={supplier} categories={categories} location={location} uptoken={uptoken} />
           </Tabs.TabPane>
-          <Tabs.TabPane tab="完善资料" key="material">
-            完善资料
+          <Tabs.TabPane tab="完善资料" key="material" disabled={!productId}>
+            <MaterialForm product={product} material={material} location={location} />
           </Tabs.TabPane>
-          <Tabs.TabPane tab="上传图片" key="images">
-            上传图片
+          <Tabs.TabPane tab="上传图片" key="images" disabled={isEmpty(product.model)}>
+            <PicturesForm product={product} material={material} location={location} uptoken={uptoken} />
           </Tabs.TabPane>
         </Tabs>
         <Modal {...crawlProductModalProps}>

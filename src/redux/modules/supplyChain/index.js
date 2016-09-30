@@ -9,6 +9,10 @@ import product from './product';
 import categories from './categories';
 import category from './category';
 import district from './district';
+import sku from './sku';
+import preference from './preference';
+import material from './material';
+import uptoken from './uptoken';
 
 export default {
   schedules,
@@ -22,4 +26,8 @@ export default {
   categories,
   category,
   district,
+  sku,
+  preference,
+  material,
+  uptoken,
 };

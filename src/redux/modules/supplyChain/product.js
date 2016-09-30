@@ -1,5 +1,6 @@
 import createReducer from 'redux/createReducer';
 import { apisBase, scheduleTypes } from 'constants';
+import { fetchSku } from './sku';
 
 const initialState = {};
 
@@ -29,21 +30,56 @@ export default createReducer({
     title: payload.data.title,
     picUrl: payload.data.picUrl,
     productLink: payload.data.fetchUrl,
-    supplierId: payload.data.saleSupplier,
-    categoryId: payload.data.saleCategory,
+    saleSupplier: payload.data.saleSupplier,
+    supplierSku: payload.data.supplierSku,
   }),
   [`CRAWL_${name}_FAILURE`]: (state, { payload, status }) => ({
     ...state,
     ...status,
   }),
+  [`SAVE_${name}_REQUEST`]: (state, { payload, status }) => ({
+    ...state,
+    ...status,
+    updated: false,
+  }),
+  [`SAVE_${name}_SUCCESS`]: (state, { payload, status }) => ({
+    ...state,
+    ...status,
+    updated: true,
+  }),
+  [`SAVE_${name}_FAILURE`]: (state, { payload, status }) => ({
+    ...state,
+    ...status,
+    updated: false,
+  }),
+  [`UPDATE_${name}_REQUEST`]: (state, { payload, status }) => ({
+    ...state,
+    ...status,
+    updated: false,
+  }),
+  [`UPDATE_${name}_SUCCESS`]: (state, { payload, status }) => ({
+    ...state,
+    ...status,
+    ...payload.data,
+    updated: true,
+  }),
+  [`UPDATE_${name}_FAILURE`]: (state, { payload, status }) => ({
+    ...state,
+    ...status,
+    updated: false,
+  }),
+  [`RESET_${name}`]: (state, { payload, status }) => ({
+
+  }),
 }, initialState);
 
-export const fetchProduct = (filters) => ({
-  url: `${apisBase.supply}saleproduct`,
+export const fetchProduct = (id) => ({
+  url: `${apisBase.supply}saleproduct/${id}`,
   method: 'get',
   type: `FETCH_${name}`,
-  params: {
-    ...filters,
+  success: (resolved, dispatch) => {
+    const { saleCategory } = resolved.data;
+    dispatch(fetchSku(saleCategory.id));
   },
 });
 
@@ -58,19 +94,23 @@ export const crawlProduct = (supplierId, productLink) => ({
 });
 
 export const saveProduct = (params) => ({
-  url: `${apisBase.supply}saleproduct/fetch_platform_product`,
+  url: `${apisBase.supply}saleproduct`,
   method: 'post',
   type: `SAVE_${name}`,
-  params: {
+  data: {
     ...params,
   },
 });
 
-export const updateProduct = (params) => ({
-  url: `${apisBase.supply}saleproduct/fetch_platform_product`,
+export const updateProduct = (id, params) => ({
+  url: `${apisBase.supply}saleproduct/${id}`,
   method: 'patch',
   type: `UPDATE_${name}`,
-  params: {
+  data: {
     ...params,
   },
+});
+
+export const resetProduct = () => ({
+  type: `RESET_${name}`,
 });
