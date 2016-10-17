@@ -27,14 +27,11 @@ app.use(morgan('short'));
 app.use(express.static(`${__dirname}/`));
 // if API is ready, proxy to api server. else use mock data.
 app.use(mocks());
-app.use('/apis', proxy(url.parse(`http://${config.apiHost}:${config.apiPort}/apis`)));
-app.use('/rest', proxy(url.parse(`http://${config.apiHost}:${config.apiPort}/rest`)));
-app.use('/admin', proxy(url.parse(`http://${config.apiHost}:${config.apiPort}/admin`)));
 app.get('/', (req, res) => {
   res.sendFile(`${__dirname}/index.html`);
 });
 
-http.createServer(app).listen(config.port || 7070, () => {
+http.createServer(app).listen(config.port || 3000, () => {
   console.log('🎈 --> Server started: http://localhost:%d', config.port);
   console.log('🎈 --> API Proxy Server started: %s:%d', config.apiHost, config.apiPort);
 });
