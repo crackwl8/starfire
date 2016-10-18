@@ -1,7 +1,5 @@
 import React, { Component } from 'react';
 import { Row, Col, Breadcrumb } from 'antd';
-import { Sider } from 'components/Sider';
-import { Header } from 'components/Header';
 import * as constants from 'constants';
 
 import './styles/index.less';
@@ -18,7 +16,7 @@ export class App extends Component {
   };
 
   static defaultProps = {
-    prefixCls: 'console',
+    prefixCls: 'test',
   };
 
   constructor(props, context) {
@@ -30,17 +28,10 @@ export class App extends Component {
     currentKey: this.props.location.pathname,
   }
 
-  onMenuClick = (e) => {
-    this.setState({ currentKey: e.key });
-    this.context.router.replace(e.key);
-  }
-
   render() {
     const { prefixCls, children, ...props } = this.props;
     return (
       <div className={`${prefixCls}`}>
-        <Header />
-        <Sider menu={constants.menu} selectedKeys={this.state.currentKey} onMenuClick={this.onMenuClick} />
         <nav className={`${prefixCls}-nav`}>
           <Breadcrumb {...props} separator="/" />
         </nav>

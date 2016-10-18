@@ -64,7 +64,7 @@ export default (config = {}) => {
         })
         .catch((rejected) => {
           if (rejected.status === 403) {
-            window.location.replace(`/admin/login/?next=${window.location.pathname}${window.location.hash}`);
+            window.location.replace(`/login/?next=${window.location.pathname}${window.location.hash}`);
           }
           const rejectedAction = getAction(rejected, true);
           dispatch(rejectedAction);
