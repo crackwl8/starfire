@@ -5,7 +5,6 @@ import { unstable_batchedUpdates as batchedUpdates } from 'react-dom'; // eslint
 import createLogger from 'redux-logger';
 import reducer from './reducer';
 import promiseMiddleware from './middleware/promiseMiddleware';
-import { apiMiddleware } from './middleware/apiMiddleware';
 
 const logger = createLogger({
   collapsed: true,
@@ -14,7 +13,6 @@ const logger = createLogger({
 });
 
 const middlewares = [
-  apiMiddleware,
   promiseMiddleware(),
   thunkMiddleware,
 ].filter(Boolean);
