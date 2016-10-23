@@ -34,7 +34,7 @@ export class App extends Component {
         <nav className={`${prefixCls}-nav`}>
           <Breadcrumb {...props} separator="/" />
         </nav>
-        <h1>welcome</h1>
+        <h1>welcome, susie</h1>
         <div className={`${prefixCls}-container`}>
           {children}
         </div>
