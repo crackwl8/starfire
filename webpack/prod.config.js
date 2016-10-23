@@ -3,7 +3,7 @@ const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const ReplacePlugin = require('replace-webpack-plugin');
 const LessPluginCleanCSS = require('less-plugin-clean-css');
 
-const publicPath = '/console/';
+const publicPath = '/';
 const extractLESS = new ExtractTextPlugin('app-[hash].css');
 
 module.exports = {
